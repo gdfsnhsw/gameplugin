@@ -61,6 +61,8 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          # ▼▼▼ 关键修改：禁用 provenance 以避免生成 manifest list ▼▼▼
+          provenance: false
 
   manifest:
     name: Create and Push Manifest
@@ -76,19 +78,36 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Create and Push Manifest
+        # 使用环境变量传递 REF，比直接在脚本里混用 ${{}} 更安全
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          GITHUB_REF: ${{ github.ref }}
         run: |
-          docker manifest rm ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:latest || true
-          # 创建并推送 latest manifest
-          docker manifest create ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:latest \
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:amd64-latest \
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:arm64-latest
-          docker manifest push ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:latest
+          TARGET_IMAGE="${DOCKER_USERNAME}/${REPO_NAME}"
+          
+          echo "Processing manifest for ${TARGET_IMAGE}"
 
-          # 如果是发布版本，创建版本标签的manifest
-          if [[ ${{ github.ref }} =~ ^refs/tags/v ]]; then
+          # 1. 处理 Latest 标签
+          # 清理旧 manifest（如果存在）
+          docker manifest rm ${TARGET_IMAGE}:latest || true
+
+          # 创建 latest manifest
+          docker manifest create ${TARGET_IMAGE}:latest \
+            ${TARGET_IMAGE}:amd64-latest \
+            ${TARGET_IMAGE}:arm64-latest
+          
+          # 推送 latest
+          docker manifest push ${TARGET_IMAGE}:latest
+
+          # 2. 处理版本标签 (例如 v1.0.0)
+          if [[ "$GITHUB_REF" =~ ^refs/tags/v ]]; then
             VERSION=${GITHUB_REF#refs/tags/}
-            docker manifest create ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${VERSION} \
-              ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${VERSION}-amd64 \
-              ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${VERSION}-arm64
-            docker manifest push ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${VERSION}
+            echo "Processing version: ${VERSION}"
+            
+            docker manifest create ${TARGET_IMAGE}:${VERSION} \
+              ${TARGET_IMAGE}:${VERSION}-amd64 \
+              ${TARGET_IMAGE}:${VERSION}-arm64
+              
+            docker manifest push ${TARGET_IMAGE}:${VERSION}
           fi
