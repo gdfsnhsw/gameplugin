@@ -25,6 +25,11 @@ config interface 'lan'
 
   wget https://uurouter.gdl.netease.com/uuplugin-script/openwrt/v1/install.sh -O /root/install.sh
   /bin/sh /root/install.sh openwrt $(uname -m)
+
   wget http://partnerdownload.xunyou.com/routerplugin/install.sh -O /root/xyinstall.sh
   /bin/sh /root/xyinstall.sh openwrt $(uname -m)
+
+  if [ -n "$GOSTAPI" ]; then
+    /usr/bin/gost -api :"$GOSTAPI" >/dev/null 2>&1 &
+  fi
 }
