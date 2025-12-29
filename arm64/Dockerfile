@@ -30,6 +30,8 @@ RUN opkg update && \
     if ! opkg list-installed | grep -q kmod-tun; then opkg install kmod-tun || true; fi && \
     rm -rf /var/opkg-lists
 
+COPY arm64/linux_arm64_gost /usr/bin/gost
+RUN chmod +x /usr/bin/gost
 
 COPY uu_prepare /etc/init.d/uu_prepare
 RUN chmod +x /etc/init.d/uu_prepare \
