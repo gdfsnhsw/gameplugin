@@ -23,6 +23,7 @@ RUN opkg update && \
     if ! opkg list-installed | grep -q libustream-openssl; then opkg install libustream-openssl || true; fi && \
     if ! opkg list-installed | grep -q ca-bundle; then opkg install ca-bundle || true; fi && \
     if ! opkg list-installed | grep -q kmod-tun; then opkg install kmod-tun || true; fi && \
+    if ! opkg list-installed | grep -q wget; then opkg install wget || true; fi && \
     rm -rf /var/opkg-lists
 
 RUN wget https://uurouter.gdl.netease.com/uuplugin-script/openwrt/v1/install.sh -O /root/install.sh && \
