@@ -26,12 +26,12 @@ RUN opkg update && \
     if ! opkg list-installed | grep -q wget; then opkg install wget || true; fi && \
     rm -rf /var/opkg-lists
 
-RUN wget https://uurouter.gdl.netease.com/uuplugin-script/openwrt/v1/install.sh -O /root/install.sh && \
-    /bin/sh /root/install.sh openwrt $(uname -m) && \
+RUN wget --no-check-certificate https://uurouter.gdl.netease.com/uuplugin-script/openwrt/v1/install.sh -O /root/install.sh && \
+    /bin/sh /root/install.sh openwrt x86_64 && \
     rm /root/install.sh
 
-RUN wget http://partnerdownload.xunyou.com/routerplugin/install.sh -O /root/xyinstall.sh && \
-    /bin/sh /root/xyinstall.sh openwrt $(uname -m) && \
+RUN wget --no-check-certificate http://partnerdownload.xunyou.com/routerplugin/install.sh -O /root/xyinstall.sh && \
+    /bin/sh /root/xyinstall.sh openwrt x86_64 && \
     rm /root/xyinstall.sh
 
 COPY amd64/linux_amd64_gost /usr/bin/gost
