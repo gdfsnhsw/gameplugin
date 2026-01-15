@@ -25,6 +25,14 @@ RUN opkg update && \
     if ! opkg list-installed | grep -q kmod-tun; then opkg install kmod-tun || true; fi && \
     rm -rf /var/opkg-lists
 
+RUN wget https://uurouter.gdl.netease.com/uuplugin-script/openwrt/v1/install.sh -O /root/install.sh && \
+    /bin/sh /root/install.sh openwrt $(uname -m) && \
+    rm /root/install.sh
+
+RUN wget http://partnerdownload.xunyou.com/routerplugin/install.sh -O /root/xyinstall.sh && \
+    /bin/sh /root/xyinstall.sh openwrt $(uname -m) && \
+    rm /root/xyinstall.sh
+
 COPY amd64/linux_amd64_gost /usr/bin/gost
 RUN chmod +x /usr/bin/gost
 
