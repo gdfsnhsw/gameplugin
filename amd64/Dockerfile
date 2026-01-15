@@ -20,17 +20,16 @@ RUN mkdir -p /var/lock && \
     echo 'src/gz openwrt_telephony https://downloads.openwrt.org/releases/21.02.5/packages/x86_64/telephony' >> /etc/opkg/distfeeds.conf
 
 RUN opkg update && \
-    if ! opkg list-installed | grep -q libustream-openssl; then opkg install libustream-openssl || true; fi && \
-    if ! opkg list-installed | grep -q ca-bundle; then opkg install ca-bundle || true; fi && \
-    if ! opkg list-installed | grep -q kmod-tun; then opkg install kmod-tun || true; fi && \
-    if ! opkg list-installed | grep -q wget; then opkg install wget || true; fi && \
+    opkg install libustream-openssl ca-bundle ca-certificates kmod-tun wget curl && \
     rm -rf /var/opkg-lists
 
-RUN wget --no-check-certificate https://uurouter.gdl.netease.com/uuplugin-script/openwrt/v1/install.sh -O /root/install.sh && \
+RUN curl -L -k https://uurouter.gdl.netease.com/uuplugin-script/openwrt/v1/install.sh -o /root/install.sh && \
+    chmod +x /root/install.sh && \
     /bin/sh /root/install.sh openwrt x86_64 && \
     rm /root/install.sh
 
-RUN wget --no-check-certificate http://partnerdownload.xunyou.com/routerplugin/install.sh -O /root/xyinstall.sh && \
+RUN curl -L -k http://partnerdownload.xunyou.com/routerplugin/install.sh -o /root/xyinstall.sh && \
+    chmod +x /root/xyinstall.sh && \
     /bin/sh /root/xyinstall.sh openwrt x86_64 && \
     rm /root/xyinstall.sh
 
