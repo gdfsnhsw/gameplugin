@@ -23,11 +23,24 @@ config interface 'lan'
   uci commit dhcp
   /etc/init.d/dnsmasq restart
 
-  wget https://uurouter.gdl.netease.com/uuplugin-script/openwrt/v1/install.sh -O /root/install.sh
-  /bin/sh /root/install.sh openwrt $(uname -m)
+  # 2. 网易 UU：增加持久化检测
+  # 如果检测到 monitor 脚本已存在，说明已经安装过，直接运行；否则下载安装
+  if [ ! -f "/usr/sbin/uu/uuplugin_monitor.sh" ]; then
+      wget https://uurouter.gdl.netease.com/uuplugin-script/openwrt/v1/install.sh -O /root/uuinstall.sh
+      /bin/sh /root/uuinstall.sh openwrt $(uname -m)
+  else
+      /usr/sbin/uu/uuplugin_monitor.sh &
+  fi
 
-  wget http://partnerdownload.xunyou.com/routerplugin/install.sh -O /root/xyinstall.sh
-  /bin/sh /root/xyinstall.sh openwrt $(uname -m)
+  # 3. 迅游：增加持久化检测
+  # 检测守护脚本是否存在，不存在则下载安装
+  if [ ! -f "/xunyou/xunyou_daemon.sh" ]; then
+      wget http://partnerdownload.xunyou.com/routerplugin/install.sh -O /root/xyinstall.sh
+      /bin/sh /root/xyinstall.sh openwrt $(uname -m)
+  else
+      # 迅游安装后通常通过守护脚本拉起
+      /bin/sh /xunyou/xunyou_daemon.sh simple &
+  fi
 
   if [ -n "$GOSTAPI" ]; then
     /usr/bin/gost -api :"$GOSTAPI" >/dev/null 2>&1 &
