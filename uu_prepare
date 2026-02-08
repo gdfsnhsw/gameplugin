@@ -23,7 +23,7 @@ config interface 'lan'
   uci commit dhcp
   /etc/init.d/dnsmasq restart
 
-  # 2. 网易 UU：增加持久化检测
+  # 网易 UU：增加持久化检测
   # 如果检测到 monitor 脚本已存在，说明已经安装过，直接运行；否则下载安装
   if [ ! -f "/usr/sbin/uu/uuplugin_monitor.sh" ]; then
       wget https://uurouter.gdl.netease.com/uuplugin-script/openwrt/v1/install.sh -O /root/uuinstall.sh
@@ -32,7 +32,7 @@ config interface 'lan'
       /usr/sbin/uu/uuplugin_monitor.sh &
   fi
 
-  # 3. 迅游：增加持久化检测
+  # 迅游：增加持久化检测
   # 检测守护脚本是否存在，不存在则下载安装
 #   if [ ! -f "/xunyou/xunyou_daemon.sh" ]; then
 #       wget http://partnerdownload.xunyou.com/routerplugin/install.sh -O /root/xyinstall.sh
@@ -42,6 +42,7 @@ config interface 'lan'
 #       /bin/sh /xunyou/xunyou_daemon.sh simple &
 #   fi
 
+  # 奇游持久化检测
   if [ ! -f "/etc/qy/qy_acc.sh" ]; then
       # 异步执行安装，确保整个 start 流程快速结束
       (
